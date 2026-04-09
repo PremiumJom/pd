@@ -1,0 +1,1189 @@
+--[[
+    JomHUB [PD PREMIUM]
+    Theme: Solo Leveling (System Interface) - Modern & Safe
+    Features: RGB, Perfect Alignment, Advanced ESP, Modular
+]]
+
+local lIll1IIlIIlI = game:GetService("Players")
+local l1l1III1Il1I = game:GetService("TweenService")
+local IlIl1ll11I1l = game:GetService("RunService")
+local lIl1I1lIII1I = game:GetService("UserInputService")
+local IIlIl111lIll = game:GetService("CoreGui")
+local l111l1IllIll = game:GetService("Workspace")
+local IlIlII11I11l = l111l1IllIll.CurrentCamera
+local I1IlIlIlIII1 = lIll1IIlIIlI.LocalPlayer
+local IIIllI1l111I = I1IlIlIlIII1:GetMouse()
+
+-- // Configuration & Settings
+local IIIl1lI1Ill1 = {
+    Theme = {
+        Background = Color3.fromRGB(8, 10, 15),       -- Dark System Void
+        Foreground = Color3.fromRGB(15, 18, 25),      -- Slightly lighter for panels
+        Accent = Color3.fromRGB(0, 229, 255),         -- System Neon Blue
+        Text = Color3.fromRGB(220, 220, 220),         -- White/Grey
+        TextDark = Color3.fromRGB(130, 130, 150),     -- Muted Text
+        Danger = Color3.fromRGB(255, 50, 50),         -- System Alert Red
+        RGBEnabled = true
+    },
+    Combat = {
+        Aimbot = false,
+        AimPart = "Head",
+        AimKey = Enum.UserInputType.MouseButton2,
+            NoRecoil = false,
+            InstaHit = false
+        },
+        Character = {
+            ZoomEnabled = false,
+            ZoomFOV = 20,
+            ZoomKey = Enum.KeyCode.Z,
+            FOV = 70    
+    },
+    ESP = {
+        Player = { Box = false, Name = false, Distance = false, HealthBar = false, Line = false, Skeleton = false, HeadDot = false, Exposed = false },
+        NPC = { Box = false, Name = false, Distance = false, HealthBar = false, Line = false, Skeleton = false, HeadDot = false, Exposed = false },
+        Exit = { Box = false, Name = false, Distance = false },
+        Loot = {},
+        Dropped = false,
+        DeadBodies = false,
+        Mines = false,
+        MaxDistance = 500,
+        LootDistance = 500
+    }
+}
+
+-- // UI Parent & Cleanup System
+local function getUiParent()
+    local lll1ll1Ill11, Il1Il1I1lI11 = pcall(function() return gethui() end)
+    if not lll1ll1Ill11 or not Il1Il1I1lI11 then lll1ll1Ill11, Il1Il1I1lI11 = pcall(function() return IIlIl111lIll end) end
+    if not lll1ll1Ill11 or not Il1Il1I1lI11 then Il1Il1I1lI11 = I1IlIlIlIII1:WaitForChild("PlayerGui") end
+    return Il1Il1I1lI11
+end
+
+for _, v in pairs(getUiParent():GetChildren()) do
+    if v.Name == "JomHUB_PremiumSystem" then v:Destroy() end
+end
+
+local II1IllIIIIII = {}
+local l11I1Il1111l = {}
+
+local function RegisterConnection(conn) table.insert(II1IllIIIIII, conn) return conn end
+local function RegisterDrawing(draw) table.insert(l11I1Il1111l, draw) return draw end
+
+-- // GUI Framework Creation
+local llII1II1lll1 = Instance.new("ScreenGui")
+llII1II1lll1.Name = "JomHUB_PremiumSystem"
+llII1II1lll1.ResetOnSpawn = false
+llII1II1lll1.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+llII1II1lll1.Parent = getUiParent()
+
+llII1II1lll1.Destroying:Connect(function()
+    for _, conn in ipairs(II1IllIIIIII) do if conn.Disconnect then conn:Disconnect() end end
+    for _, draw in ipairs(l11I1Il1111l) do if draw.Remove then draw:Remove() end end
+end)
+
+-- // Toggle Button
+local ll1IIl1l1lll = Instance.new("TextButton")
+ll1IIl1l1lll.Name = "OpenToggle"
+ll1IIl1l1lll.Size = UDim2.new(0, 45, 0, 45)
+ll1IIl1l1lll.Position = UDim2.new(0.5, -22, 0, 20)
+ll1IIl1l1lll.BackgroundColor3 = IIIl1lI1Ill1.Theme.Background
+ll1IIl1l1lll.BackgroundTransparency = 0.15
+ll1IIl1l1lll.Text = "J"
+ll1IIl1l1lll.TextColor3 = IIIl1lI1Ill1.Theme.Accent
+ll1IIl1l1lll.Font = Enum.Font.Code
+ll1IIl1l1lll.TextSize = 16
+ll1IIl1l1lll.BorderSizePixel = 0
+ll1IIl1l1lll.Parent = llII1II1lll1
+
+local II11I1111I1I = Instance.new("UICorner")
+II11I1111I1I.CornerRadius = UDim.new(0, 8)
+II11I1111I1I.Parent = ll1IIl1l1lll
+
+local IlIl1lI11III = Instance.new("UIStroke")
+IlIl1lI11III.Color = IIIl1lI1Ill1.Theme.Accent
+IlIl1lI11III.Thickness = 2
+IlIl1lI11III.Parent = ll1IIl1l1lll
+
+local lI11llIlIlI1, l1lIIIlII1II, lI11lIIIIllI, IlI11llI11Il
+ll1IIl1l1lll.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then lI11llIlIlI1 = true lI11lIIIIllI = input.Position IlI11llI11Il = ll1IIl1l1lll.Position input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then lI11llIlIlI1 = false end end) end end)
+ll1IIl1l1lll.InputChanged:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseMovement then l1lIIIlII1II = input end end)
+RegisterConnection(lIl1I1lIII1I.InputChanged:Connect(function(input) if input == l1lIIIlII1II and lI11llIlIlI1 then local IllIlI1l1ll1 = input.Position - lI11lIIIIllI ll1IIl1l1lll.Position = UDim2.new(IlI11llI11Il.X.Scale, IlI11llI11Il.X.Offset + IllIlI1l1ll1.X, IlI11llI11Il.Y.Scale, IlI11llI11Il.Y.Offset + IllIlI1l1ll1.Y) end end))
+
+-- // Main Window
+local lI1II111lIIl = Instance.new("Frame")
+lI1II111lIIl.Name = "SystemWindow"
+lI1II111lIIl.Size = UDim2.new(0, 650, 0, 420)
+lI1II111lIIl.Position = UDim2.new(0.5, -325, 0.5, -210)
+lI1II111lIIl.BackgroundColor3 = IIIl1lI1Ill1.Theme.Background
+lI1II111lIIl.BackgroundTransparency = 0.15 -- Glassmorphism
+lI1II111lIIl.BorderSizePixel = 0
+lI1II111lIIl.ClipsDescendants = true
+lI1II111lIIl.Active = true
+lI1II111lIIl.Parent = llII1II1lll1
+
+ll1IIl1l1lll.MouseButton1Click:Connect(function()
+    if lI1II111lIIl then lI1II111lIIl.Visible = not lI1II111lIIl.Visible end
+end)
+
+local l1lI11lIlllI = Instance.new("UICorner")
+l1lI11lIlllI.CornerRadius = UDim.new(0, 8)
+l1lI11lIlllI.Parent = lI1II111lIIl
+
+-- RGB Stroke
+local IIlIIIIIlIII = Instance.new("UIStroke")
+IIlIIIIIlIII.Color = IIIl1lI1Ill1.Theme.Accent
+IIlIIIIIlIII.Thickness = 2
+IIlIIIIIlIII.Parent = lI1II111lIIl
+
+task.spawn(function()
+    local III1IlIl111l = 0
+    while llII1II1lll1.Parent do
+        if IIIl1lI1Ill1.Theme.RGBEnabled then
+            III1IlIl111l = III1IlIl111l + 0.002
+            if III1IlIl111l > 1 then III1IlIl111l = 0 end
+            local Il1Il11l11l1 = Color3.fromHSV(III1IlIl111l, 1, 1)
+            IIlIIIIIlIII.Color = Il1Il11l11l1
+            IlIl1lI11III.Color = Il1Il11l11l1
+        else
+            IIlIIIIIlIII.Color = IIIl1lI1Ill1.Theme.Accent
+            IlIl1lI11III.Color = IIIl1lI1Ill1.Theme.Accent
+        end
+        task.wait()
+    end
+end)
+
+-- // Header & Dragging
+local I1IlIIII111I = Instance.new("Frame")
+I1IlIIII111I.Size = UDim2.new(1, 0, 0, 40)
+I1IlIIII111I.BackgroundColor3 = IIIl1lI1Ill1.Theme.Foreground
+I1IlIIII111I.BackgroundTransparency = 0.5
+I1IlIIII111I.BorderSizePixel = 0
+I1IlIIII111I.Parent = lI1II111lIIl
+
+local lI11ll1IIIlI = Instance.new("TextLabel")
+lI11ll1IIIlI.Size = UDim2.new(1, -20, 1, 0)
+lI11ll1IIIlI.Position = UDim2.new(0, 15, 0, 0)
+lI11ll1IIIlI.BackgroundTransparency = 1
+lI11ll1IIIlI.Text = "[ PREMIUM SCRIPT ]"
+lI11ll1IIIlI.Font = Enum.Font.Code
+lI11ll1IIIlI.TextSize = 16
+lI11ll1IIIlI.TextColor3 = IIIl1lI1Ill1.Theme.Accent
+lI11ll1IIIlI.TextXAlignment = Enum.TextXAlignment.Left
+lI11ll1IIIlI.Parent = I1IlIIII111I
+
+local l1llIlIllllI, I11lII1l1l1l, lI1lIl1I11I1, lII1IllIIll1
+I1IlIIII111I.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        l1llIlIllllI = true lI1lIl1I11I1 = input.Position lII1IllIIll1 = lI1II111lIIl.Position
+        input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then l1llIlIllllI = false end end)
+    end
+end)
+I1IlIIII111I.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then I11lII1l1l1l = input end
+end)
+RegisterConnection(lIl1I1lIII1I.InputChanged:Connect(function(input)
+    if input == I11lII1l1l1l and l1llIlIllllI then
+        local IllIlI1l1ll1 = input.Position - lI1lIl1I11I1
+        lI1II111lIIl.Position = UDim2.new(lII1IllIIll1.X.Scale, lII1IllIIll1.X.Offset + IllIlI1l1ll1.X, lII1IllIIll1.Y.Scale, lII1IllIIll1.Y.Offset + IllIlI1l1ll1.Y)
+    end
+end))
+
+-- // Sidebar System
+local ll11I1I11I1l = Instance.new("Frame")
+ll11I1I11I1l.Size = UDim2.new(0, 140, 1, -40)
+ll11I1I11I1l.Position = UDim2.new(0, 0, 0, 40)
+ll11I1I11I1l.BackgroundColor3 = IIIl1lI1Ill1.Theme.Foreground
+ll11I1I11I1l.BackgroundTransparency = 0.3
+ll11I1I11I1l.BorderSizePixel = 0
+ll11I1I11I1l.Parent = lI1II111lIIl
+
+local IllIlll11lII = Instance.new("UIListLayout")
+IllIlll11lII.Padding = UDim.new(0, 5)
+IllIlll11lII.HorizontalAlignment = Enum.HorizontalAlignment.Center
+IllIlll11lII.SortOrder = Enum.SortOrder.LayoutOrder
+IllIlll11lII.Parent = ll11I1I11I1l
+
+local Il111IIlI11l = Instance.new("UIPadding")
+Il111IIlI11l.PaddingTop = UDim.new(0, 10)
+Il111IIlI11l.Parent = ll11I1I11I1l
+
+local IlllIl11IIII = Instance.new("Frame")
+IlllIl11IIII.Size = UDim2.new(1, -140, 1, -40)
+IlllIl11IIII.Position = UDim2.new(0, 140, 0, 40)
+IlllIl11IIII.BackgroundTransparency = 1
+IlllIl11IIII.Parent = lI1II111lIIl
+
+-- // System Notifications
+local function Notify(title, text, duration)
+    -- Custom notification implementation here if needed
+    print("[SYSTEM] " .. title .. ": " .. text)
+end
+
+-- // Tab System (Perfect Align)
+local l1l1111lIlIl = {}
+local I1I1IlIIl1I1 = nil
+
+local function CreateTab(name, icon)
+    local llI1llll111I = Instance.new("TextButton")
+    llI1llll111I.Size = UDim2.new(0.9, 0, 0, 35)
+    llI1llll111I.BackgroundColor3 = IIIl1lI1Ill1.Theme.Background
+    llI1llll111I.BackgroundTransparency = 0.5
+    llI1llll111I.Text = name:upper()
+    llI1llll111I.TextColor3 = IIIl1lI1Ill1.Theme.TextDark
+    llI1llll111I.Font = Enum.Font.Code
+    llI1llll111I.TextSize = 13
+    llI1llll111I.Parent = ll11I1I11I1l
+    Instance.new("UICorner", llI1llll111I).CornerRadius = UDim.new(0, 6)
+    
+    local ll1III1l11lI = Instance.new("ScrollingFrame")
+    ll1III1l11lI.Size = UDim2.new(1, -20, 1, -20)
+    ll1III1l11lI.Position = UDim2.new(0, 10, 0, 10)
+    ll1III1l11lI.BackgroundTransparency = 1
+    ll1III1l11lI.ScrollBarThickness = 2
+    ll1III1l11lI.Visible = false
+    ll1III1l11lI.Parent = IlllIl11IIII
+    
+    -- Two perfectly aligned columns
+    local I111llIll1l1 = Instance.new("Frame")
+    I111llIll1l1.Size = UDim2.new(0.48, 0, 1, 0)
+    I111llIll1l1.BackgroundTransparency = 1
+    I111llIll1l1.Parent = ll1III1l11lI
+    local l1llIl1I1lI1 = Instance.new("UIListLayout")
+    l1llIl1I1lI1.Padding = UDim.new(0, 8)
+    l1llIl1I1lI1.SortOrder = Enum.SortOrder.LayoutOrder
+    l1llIl1I1lI1.Parent = I111llIll1l1
+    
+    local IIlIIll1IIl1 = Instance.new("Frame")
+    IIlIIll1IIl1.Size = UDim2.new(0.48, 0, 1, 0)
+    IIlIIll1IIl1.Position = UDim2.new(0.52, 0, 0, 0)
+    IIlIIll1IIl1.BackgroundTransparency = 1
+    IIlIIll1IIl1.Parent = ll1III1l11lI
+    local llIIlll1Ill1 = Instance.new("UIListLayout")
+    llIIlll1Ill1.Padding = UDim.new(0, 8)
+    llIIlll1Ill1.SortOrder = Enum.SortOrder.LayoutOrder
+    llIIlll1Ill1.Parent = IIlIIll1IIl1
+    
+    local function UpdateCanvas()
+        local lI111lII1II1 = math.max(l1llIl1I1lI1.AbsoluteContentSize.Y, llIIlll1Ill1.AbsoluteContentSize.Y)
+        ll1III1l11lI.CanvasSize = UDim2.new(0, 0, 0, lI111lII1II1 + 20)
+    end
+    l1llIl1I1lI1:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateCanvas)
+    llIIlll1Ill1:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateCanvas)
+    
+    llI1llll111I.MouseButton1Click:Connect(function()
+        if I1I1IlIIl1I1 then
+            I1I1IlIIl1I1.Btn.TextColor3 = IIIl1lI1Ill1.Theme.TextDark
+            I1I1IlIIl1I1.Frame.Visible = false
+            l1l1III1Il1I:Create(I1I1IlIIl1I1.Btn, TweenInfo.new(0.2), {BackgroundColor3 = IIIl1lI1Ill1.Theme.Background}):Play()
+        end
+        I1I1IlIIl1I1 = {Btn = llI1llll111I, Frame = ll1III1l11lI}
+        llI1llll111I.TextColor3 = IIIl1lI1Ill1.Theme.Accent
+        ll1III1l11lI.Visible = true
+        l1l1III1Il1I:Create(llI1llll111I, TweenInfo.new(0.2), {BackgroundColor3 = IIIl1lI1Ill1.Theme.Foreground}):Play()
+    end)
+    
+    if not I1I1IlIIl1I1 then
+        I1I1IlIIl1I1 = {Btn = llI1llll111I, Frame = ll1III1l11lI}
+        llI1llll111I.TextColor3 = IIIl1lI1Ill1.Theme.Accent
+        ll1III1l11lI.Visible = true
+        llI1llll111I.BackgroundColor3 = IIIl1lI1Ill1.Theme.Foreground
+    end
+    
+    return I111llIll1l1, IIlIIll1IIl1
+end
+
+-- // UI Component Builders
+local function CreateSection(Il1Il1I1lI11, title)
+    local I1ll1II1I1ll = Instance.new("TextLabel")
+    I1ll1II1I1ll.Size = UDim2.new(1, 0, 0, 20)
+    I1ll1II1I1ll.BackgroundTransparency = 1
+    I1ll1II1I1ll.Text = title
+    I1ll1II1I1ll.TextColor3 = IIIl1lI1Ill1.Theme.Accent
+    I1ll1II1I1ll.Font = Enum.Font.Code
+    I1ll1II1I1ll.TextSize = 14
+    I1ll1II1I1ll.TextXAlignment = Enum.TextXAlignment.Left
+    I1ll1II1I1ll.Parent = Il1Il1I1lI11
+end
+
+local function CreateToggle(Il1Il1I1lI11, text, default, callback)
+    local I11lIlIIl11I = Instance.new("TextButton")
+    I11lIlIIl11I.Size = UDim2.new(1, 0, 0, 32)
+    I11lIlIIl11I.BackgroundColor3 = IIIl1lI1Ill1.Theme.Foreground
+    I11lIlIIl11I.BackgroundTransparency = 0.2
+    I11lIlIIl11I.Text = ""
+    I11lIlIIl11I.AutoButtonColor = false
+    I11lIlIIl11I.Parent = Il1Il1I1lI11
+    Instance.new("UICorner", I11lIlIIl11I).CornerRadius = UDim.new(0, 4)
+    
+    local I1ll1II1I1ll = Instance.new("TextLabel")
+    I1ll1II1I1ll.Size = UDim2.new(1, -40, 1, 0)
+    I1ll1II1I1ll.Position = UDim2.new(0, 10, 0, 0)
+    I1ll1II1I1ll.BackgroundTransparency = 1
+    I1ll1II1I1ll.Text = text
+    I1ll1II1I1ll.TextColor3 = IIIl1lI1Ill1.Theme.Text
+    I1ll1II1I1ll.Font = Enum.Font.Code
+    I1ll1II1I1ll.TextSize = 12
+    I1ll1II1I1ll.TextXAlignment = Enum.TextXAlignment.Left
+    I1ll1II1I1ll.Parent = I11lIlIIl11I
+    
+    local llIII11l1lII = Instance.new("Frame")
+    llIII11l1lII.Size = UDim2.new(0, 16, 0, 16)
+    llIII11l1lII.Position = UDim2.new(1, -26, 0.5, -8)
+    llIII11l1lII.BackgroundColor3 = default and IIIl1lI1Ill1.Theme.Accent or IIIl1lI1Ill1.Theme.Background
+    llIII11l1lII.Parent = I11lIlIIl11I
+    Instance.new("UICorner", llIII11l1lII).CornerRadius = UDim.new(0, 4)
+    local Illl1II11IlI = Instance.new("UIStroke")
+    Illl1II11IlI.Color = IIIl1lI1Ill1.Theme.Accent
+    Illl1II11IlI.Parent = llIII11l1lII
+    
+    local I1I1llIlI11l = default
+    I11lIlIIl11I.MouseButton1Click:Connect(function()
+        I1I1llIlI11l = not I1I1llIlI11l
+        l1l1III1Il1I:Create(llIII11l1lII, TweenInfo.new(0.2), {BackgroundColor3 = I1I1llIlI11l and IIIl1lI1Ill1.Theme.Accent or IIIl1lI1Ill1.Theme.Background}):Play()
+        callback(I1I1llIlI11l)
+    end)
+    
+    -- Run initial callback silently
+    task.spawn(callback, I1I1llIlI11l)
+end
+
+local function CreateSlider(Il1Il1I1lI11, text, min, lI111lII1II1, default, callback)
+    local lllI1III1I11 = Instance.new("Frame")
+    lllI1III1I11.Size = UDim2.new(1, 0, 0, 45)
+    lllI1III1I11.BackgroundColor3 = IIIl1lI1Ill1.Theme.Foreground
+    lllI1III1I11.BackgroundTransparency = 0.2
+    lllI1III1I11.Parent = Il1Il1I1lI11
+    Instance.new("UICorner", lllI1III1I11).CornerRadius = UDim.new(0, 4)
+    
+    local I1ll1II1I1ll = Instance.new("TextLabel")
+    I1ll1II1I1ll.Size = UDim2.new(1, -10, 0, 20)
+    I1ll1II1I1ll.Position = UDim2.new(0, 10, 0, 2)
+    I1ll1II1I1ll.BackgroundTransparency = 1
+    I1ll1II1I1ll.Text = text .. " : " .. default
+    I1ll1II1I1ll.TextColor3 = IIIl1lI1Ill1.Theme.Text
+    I1ll1II1I1ll.Font = Enum.Font.Code
+    I1ll1II1I1ll.TextSize = 12
+    I1ll1II1I1ll.TextXAlignment = Enum.TextXAlignment.Left
+    I1ll1II1I1ll.Parent = lllI1III1I11
+    
+    local lI1111Ill11I = Instance.new("Frame")
+    lI1111Ill11I.Size = UDim2.new(1, -20, 0, 6)
+    lI1111Ill11I.Position = UDim2.new(0, 10, 0, 28)
+    lI1111Ill11I.BackgroundColor3 = IIIl1lI1Ill1.Theme.Background
+    lI1111Ill11I.BorderSizePixel = 0
+    lI1111Ill11I.Parent = lllI1III1I11
+    Instance.new("UICorner", lI1111Ill11I).CornerRadius = UDim.new(1, 0)
+    
+    local ll1lIlIll1I1 = Instance.new("Frame")
+    ll1lIlIll1I1.Size = UDim2.new((default - min) / (lI111lII1II1 - min), 0, 1, 0)
+    ll1lIlIll1I1.BackgroundColor3 = IIIl1lI1Ill1.Theme.Accent
+    ll1lIlIll1I1.BorderSizePixel = 0
+    ll1lIlIll1I1.Parent = lI1111Ill11I
+    Instance.new("UICorner", ll1lIlIll1I1).CornerRadius = UDim.new(1, 0)
+    
+    local II1II1I11III = Instance.new("TextButton")
+    II1II1I11III.Size = UDim2.new(1, 0, 1, 0)
+    II1II1I11III.BackgroundTransparency = 1
+    II1II1I11III.Text = ""
+    II1II1I11III.Parent = lI1111Ill11I
+    
+    local l1llIlIllllI = false
+    II1II1I11III.MouseButton1Down:Connect(function() l1llIlIllllI = true end)
+    RegisterConnection(lIl1I1lIII1I.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then l1llIlIllllI = false end end))
+    RegisterConnection(lIl1I1lIII1I.InputChanged:Connect(function(input)
+        if l1llIlIllllI and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local IlI11llIIIlI = math.clamp((input.Position.X - lI1111Ill11I.AbsolutePosition.X) / lI1111Ill11I.AbsoluteSize.X, 0, 1)
+            local I11ll1IIl11l = math.floor(min + ((lI111lII1II1 - min) * IlI11llIIIlI))
+            ll1lIlIll1I1.Size = UDim2.new(IlI11llIIIlI, 0, 1, 0)
+            I1ll1II1I1ll.Text = text .. " : " .. I11ll1IIl11l
+            callback(I11ll1IIl11l)
+        end
+    end))
+end
+
+local function CreateKeybind(Il1Il1I1lI11, text, default, callback)
+    local I11lIlIIl11I = Instance.new("TextButton")
+    I11lIlIIl11I.Size = UDim2.new(1, 0, 0, 32)
+    I11lIlIIl11I.BackgroundColor3 = IIIl1lI1Ill1.Theme.Foreground
+    I11lIlIIl11I.BackgroundTransparency = 0.2
+    I11lIlIIl11I.Text = ""
+    I11lIlIIl11I.AutoButtonColor = false
+    I11lIlIIl11I.Parent = Il1Il1I1lI11
+    Instance.new("UICorner", I11lIlIIl11I).CornerRadius = UDim.new(0, 4)
+    
+    local I1ll1II1I1ll = Instance.new("TextLabel")
+    I1ll1II1I1ll.Size = UDim2.new(1, -10, 1, 0)
+    I1ll1II1I1ll.Position = UDim2.new(0, 10, 0, 0)
+    I1ll1II1I1ll.BackgroundTransparency = 1
+    local IIl1lIllI11I = default and (default.Name or default.UserInputType.Name) or "NONE"
+    if IIl1lIllI11I == "MouseButton2" then IIl1lIllI11I = "RMB" elseif IIl1lIllI11I == "MouseButton1" then IIl1lIllI11I = "LMB" end
+    I1ll1II1I1ll.Text = text .. " : " .. IIl1lIllI11I
+    I1ll1II1I1ll.TextColor3 = IIIl1lI1Ill1.Theme.Text
+    I1ll1II1I1ll.Font = Enum.Font.Code
+    I1ll1II1I1ll.TextSize = 12
+    I1ll1II1I1ll.TextXAlignment = Enum.TextXAlignment.Left
+    I1ll1II1I1ll.Parent = I11lIlIIl11I
+    
+    local llI1l1I1I1ll = false
+    I11lIlIIl11I.MouseButton1Click:Connect(function()
+        if llI1l1I1I1ll then return end
+        llI1l1I1I1ll = true
+        I1ll1II1I1ll.Text = text .. " : ..."
+        I1ll1II1I1ll.TextColor3 = IIIl1lI1Ill1.Theme.Accent
+        
+        local IllI1llllIIl
+        IllI1llllIIl = lIl1I1lIII1I.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Keyboard or input.UserInputType.Name:find("MouseButton") then
+                IllI1llllIIl:Disconnect()
+                llI1l1I1I1ll = false
+                
+                local I11ll1IIl11l = (input.UserInputType == Enum.UserInputType.Keyboard) and input.KeyCode or input.UserInputType
+                local llIlI1l11Il1 = I11ll1IIl11l.Name
+                if llIlI1l11Il1 == "MouseButton1" then llIlI1l11Il1 = "LMB"
+                elseif llIlI1l11Il1 == "MouseButton2" then llIlI1l11Il1 = "RMB"
+                elseif llIlI1l11Il1 == "MouseButton3" then llIlI1l11Il1 = "MMB" end
+                
+                I1ll1II1I1ll.Text = text .. " : " .. llIlI1l11Il1
+                I1ll1II1I1ll.TextColor3 = IIIl1lI1Ill1.Theme.Text
+                callback(I11ll1IIl11l)
+            end
+        end)
+    end)
+    task.spawn(callback, default)
+end
+
+local function CreateCycle(Il1Il1I1lI11, text, options, defaultIdx, callback)
+    local I11lIlIIl11I = Instance.new("TextButton")
+    I11lIlIIl11I.Size = UDim2.new(1, 0, 0, 32)
+    I11lIlIIl11I.BackgroundColor3 = IIIl1lI1Ill1.Theme.Foreground
+    I11lIlIIl11I.BackgroundTransparency = 0.2
+    I11lIlIIl11I.Text = ""
+    I11lIlIIl11I.AutoButtonColor = false
+    I11lIlIIl11I.Parent = Il1Il1I1lI11
+    Instance.new("UICorner", I11lIlIIl11I).CornerRadius = UDim.new(0, 4)
+    
+    local I1ll1II1I1ll = Instance.new("TextLabel")
+    I1ll1II1I1ll.Size = UDim2.new(1, -10, 1, 0)
+    I1ll1II1I1ll.Position = UDim2.new(0, 10, 0, 0)
+    I1ll1II1I1ll.BackgroundTransparency = 1
+    I1ll1II1I1ll.Text = text .. " : " .. options[defaultIdx]
+    I1ll1II1I1ll.TextColor3 = IIIl1lI1Ill1.Theme.Text
+    I1ll1II1I1ll.Font = Enum.Font.Code
+    I1ll1II1I1ll.TextSize = 12
+    I1ll1II1I1ll.TextXAlignment = Enum.TextXAlignment.Left
+    I1ll1II1I1ll.Parent = I11lIlIIl11I
+    
+    local lllll1l111II = defaultIdx
+    I11lIlIIl11I.MouseButton1Click:Connect(function()
+        lllll1l111II = (lllll1l111II % #options) + 1
+        I1ll1II1I1ll.Text = text .. " : " .. options[lllll1l111II]
+        callback(options[lllll1l111II])
+    end)
+    task.spawn(callback, options[defaultIdx])
+end
+
+-- // ESP System & Renderer
+local I1l11Il1l1II = {}
+
+-- Create reusable Drawing objects for ESP
+local function CreateESPDrawings()
+    local l1I1II1IIIlI = {}
+    l1I1II1IIIlI.Box = RegisterDrawing(Drawing.new("Square"))
+    l1I1II1IIIlI.Box.Thickness = 1.5
+    l1I1II1IIIlI.Box.Filled = false
+    
+    l1I1II1IIIlI.HealthBg = RegisterDrawing(Drawing.new("Line"))
+    l1I1II1IIIlI.HealthBg.Thickness = 6
+    l1I1II1IIIlI.HealthBg.Color = Color3.fromRGB(0, 0, 0)
+    
+    l1I1II1IIIlI.HealthFill = RegisterDrawing(Drawing.new("Line"))
+    l1I1II1IIIlI.HealthFill.Thickness = 4
+    
+    l1I1II1IIIlI.Name = RegisterDrawing(Drawing.new("Text"))
+    l1I1II1IIIlI.Name.Size = 14
+    l1I1II1IIIlI.Name.Center = true
+    l1I1II1IIIlI.Name.Outline = true
+    l1I1II1IIIlI.Name.Color = Color3.fromRGB(255, 255, 255)
+    
+    l1I1II1IIIlI.Distance = RegisterDrawing(Drawing.new("Text"))
+    l1I1II1IIIlI.Distance.Size = 12
+    l1I1II1IIIlI.Distance.Center = true
+    l1I1II1IIIlI.Distance.Outline = true
+    l1I1II1IIIlI.Distance.Color = Color3.fromRGB(200, 200, 200)
+    
+    l1I1II1IIIlI.Tracer = RegisterDrawing(Drawing.new("Line"))
+    l1I1II1IIIlI.Tracer.Thickness = 1
+    
+    l1I1II1IIIlI.HeadDot = RegisterDrawing(Drawing.new("Circle"))
+    l1I1II1IIIlI.HeadDot.Filled = true
+    l1I1II1IIIlI.HeadDot.Thickness = 1
+    
+    l1I1II1IIIlI.ExposedText = RegisterDrawing(Drawing.new("Text"))
+    l1I1II1IIIlI.ExposedText.Size = 13
+    l1I1II1IIIlI.ExposedText.Center = true
+    l1I1II1IIIlI.ExposedText.Outline = true
+    l1I1II1IIIlI.ExposedText.Color = IIIl1lI1Ill1.Theme.Danger
+
+    l1I1II1IIIlI.SkeletonLines = {}
+    for i = 1, 14 do
+        local I1l11IIIIlII = RegisterDrawing(Drawing.new("Line"))
+        I1l11IIIIlII.Thickness = 1.5
+        I1l11IIIIlII.Visible = false
+        table.insert(l1I1II1IIIlI.SkeletonLines, I1l11IIIIlII)
+    end
+    
+    return l1I1II1IIIlI
+end
+
+local function ClearDrawings(l1I1II1IIIlI)
+    if not l1I1II1IIIlI then return end
+    l1I1II1IIIlI.Box.Visible = false l1I1II1IIIlI.HealthBg.Visible = false l1I1II1IIIlI.HealthFill.Visible = false
+    l1I1II1IIIlI.Name.Visible = false l1I1II1IIIlI.Distance.Visible = false l1I1II1IIIlI.Tracer.Visible = false l1I1II1IIIlI.HeadDot.Visible = false
+    for _, I1l11IIIIlII in ipairs(l1I1II1IIIlI.SkeletonLines) do I1l11IIIIlII.Visible = false end
+end
+
+local function RemoveDrawings(l1I1II1IIIlI)
+    if not l1I1II1IIIlI then return end
+    l1I1II1IIIlI.Box:Remove() l1I1II1IIIlI.HealthBg:Remove() l1I1II1IIIlI.HealthFill:Remove()
+    l1I1II1IIIlI.Name:Remove() l1I1II1IIIlI.Distance:Remove() l1I1II1IIIlI.Tracer:Remove() l1I1II1IIIlI.HeadDot:Remove()
+    for _, I1l11IIIIlII in ipairs(l1I1II1IIIlI.SkeletonLines) do I1l11IIIIlII:Remove() end
+end
+
+-- ESP Target Gatherer Loop (Runs slowly to preserve FPS)
+task.spawn(function()
+    while llII1II1lll1.Parent do
+        local lIII11l1l111 = {}
+        
+        local IIlIll1111Il = IIIl1lI1Ill1.ESP.Player.Box or IIIl1lI1Ill1.ESP.Player.Name or IIIl1lI1Ill1.ESP.Player.Distance or IIIl1lI1Ill1.ESP.Player.HealthBar or IIIl1lI1Ill1.ESP.Player.Line or IIIl1lI1Ill1.ESP.Player.Skeleton or IIIl1lI1Ill1.ESP.Player.HeadDot
+        local I11111llIlll = IIIl1lI1Ill1.ESP.NPC.Box or IIIl1lI1Ill1.ESP.NPC.Name or IIIl1lI1Ill1.ESP.NPC.Distance or IIIl1lI1Ill1.ESP.NPC.HealthBar or IIIl1lI1Ill1.ESP.NPC.Line or IIIl1lI1Ill1.ESP.NPC.Skeleton or IIIl1lI1Ill1.ESP.NPC.HeadDot
+        local IlIl111ll1Il = IIIl1lI1Ill1.ESP.Exit.Box or IIIl1lI1Ill1.ESP.Exit.Name or IIIl1lI1Ill1.ESP.Exit.Distance
+        
+        -- Players
+        if IIlIll1111Il then
+            for _, p in pairs(lIll1IIlIIlI:GetPlayers()) do
+                if p ~= I1IlIlIlIII1 and p.Character then
+                    local l11Il1llIlIl = p.Character
+                    local l1IIl11111ll = l11Il1llIlIl:FindFirstChild("Humanoid")
+                    local IlIIllIllI11 = l11Il1llIlIl:FindFirstChild("HumanoidRootPart") or l11Il1llIlIl:FindFirstChild("Torso")
+                    if l1IIl11111ll and IlIIllIllI11 and l1IIl11111ll.Health > 0 then
+                        table.insert(lIII11l1l111, {Obj = l11Il1llIlIl, Hrp = IlIIllIllI11, Hum = l1IIl11111ll, Type = "Player", Name = p.Name, Color = Color3.fromRGB(0, 255, 100)})
+                    end
+                end
+            end
+        end
+        
+        -- Enemy NPCs
+        if I11111llIlll then
+            local l1I1IllI1lI1 = { {Node = l111l1IllIll, Desc = false} }
+            local Ill11lll1lll = l111l1IllIll:FindFirstChild("AiZones")
+            if Ill11lll1lll then table.insert(l1I1IllI1lI1, {Node = Ill11lll1lll, Desc = true}) end
+            
+            for _, fData in ipairs(l1I1IllI1lI1) do
+                local Il1ll1l11l1I = fData.Desc and fData.Node:GetDescendants() or fData.Node:GetChildren()
+                for _, l11Il1llIlIl in pairs(Il1ll1l11l1I) do
+                    if l11Il1llIlIl:IsA("Model") and l11Il1llIlIl ~= I1IlIlIlIII1.Character then
+                        local II11l1Illl11 = (l11Il1llIlIl.Name == "MI24V")
+                        local l1IIl11111ll = l11Il1llIlIl:FindFirstChild("Humanoid")
+                        local IlIIllIllI11 = l11Il1llIlIl:FindFirstChild("HumanoidRootPart") or l11Il1llIlIl:FindFirstChild("Torso") or (II11l1Illl11 and (l11Il1llIlIl.PrimaryPart or l11Il1llIlIl:FindFirstChildWhichIsA("BasePart", true)))
+                        
+                        if II11l1Illl11 and IlIIllIllI11 then
+                            table.insert(lIII11l1l111, {Obj = l11Il1llIlIl, Hrp = IlIIllIllI11, Hum = l1IIl11111ll, Type = "NPC", Name = "[HELI] MI24V", Color = Color3.fromRGB(255, 50, 50)})
+                        elseif l1IIl11111ll and IlIIllIllI11 and l1IIl11111ll.Health > 0 and not lIll1IIlIIlI:GetPlayerFromCharacter(l11Il1llIlIl) then
+                            table.insert(lIII11l1l111, {Obj = l11Il1llIlIl, Hrp = IlIIllIllI11, Hum = l1IIl11111ll, Type = "NPC", Name = l11Il1llIlIl.Name, Color = Color3.fromRGB(255, 50, 50)})
+                        end
+                    end
+                end
+            end
+        end
+        
+        -- Exits
+        if IlIl111ll1Il then
+            local lIl1II1lIIll = l111l1IllIll:FindFirstChild("NoCollision")
+            if lIl1II1lIIll and lIl1II1lIIll:FindFirstChild("ExitLocations") then
+                for _, exit in pairs(lIl1II1lIIll.ExitLocations:GetChildren()) do
+                    table.insert(lIII11l1l111, {Obj = exit, Hrp = exit, Type = "Exit", Name = "Extraction", Color = Color3.fromRGB(0, 200, 255)})
+                end
+            end
+        end
+        
+        -- Loot Gatherer
+        local lII1lIlIIll1 = false
+        for _, v in pairs(IIIl1lI1Ill1.ESP.Loot) do if v then lII1lIlIIll1 = true break end end
+        
+        if lII1lIlIIll1 then
+            local lI1lI11IIII1 = {
+                {Node = l111l1IllIll, Descendants = false},
+                {Node = l111l1IllIll:FindFirstChild("Containers"), Descendants = true},
+                {Node = l111l1IllIll:FindFirstChild("LootContainers"), Descendants = true}
+            }
+            for _, fData in ipairs(lI1lI11IIII1) do
+                if fData.Node then
+                    local Il1ll1l11l1I = fData.Descendants and fData.Node:GetDescendants() or fData.Node:GetChildren()
+                    for _, v in pairs(Il1ll1l11l1I) do
+                        if v:IsA("Model") or v:IsA("BasePart") then
+                            local lIII1lIlll11 = nil
+                            for lootName, enabled in pairs(IIIl1lI1Ill1.ESP.Loot) do
+                                if enabled and (v.Name == lootName or string.find(v.Name, lootName)) then
+                                    lIII1lIlll11 = lootName
+                                    break
+                                end
+                            end
+
+                            if lIII1lIlll11 then
+                                local IlI1lllIl1lI = v:IsA("BasePart") and v or (v:IsA("Model") and (v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart", true)))
+                                if IlI1lllIl1lI then
+                                    local llIIlllI1lll = ""
+                                    local IIlI1ll111I1 = v:FindFirstChild("Inventory")
+                                    if IIlI1ll111I1 then
+                                        local Il1ll1l11l1I = {}
+                                        for _, item in pairs(IIlI1ll111I1:GetChildren()) do table.insert(Il1ll1l11l1I, item.Name) end
+                                        if #Il1ll1l11l1I > 0 then llIIlllI1lll = "\n[" .. table.concat(Il1ll1l11l1I, ", ") .. "]" end
+                                    end
+                                    
+                                    local I1Il1III11ll = Color3.fromRGB(200, 200, 200)
+                                    if lIII1lIlll11:find("Military") or lIII1lIlll11 == "GrenadeCrate" then I1Il1III11ll = Color3.fromRGB(0, 255, 100)
+                                    elseif lIII1lIlll11:find("Bag") then I1Il1III11ll = Color3.fromRGB(255, 200, 50)
+                                    elseif lIII1lIlll11:find("SupplyDrop") or lIII1lIlll11:find("Shipping") or lIII1lIlll11 == "LargeABPOPABox" then I1Il1III11ll = Color3.fromRGB(50, 150, 255) end
+                                    
+                                    table.insert(lIII11l1l111, {Obj = v, Hrp = IlI1lllIl1lI, Type = "Loot", Name = string.format("[%s]%s", lIII1lIlll11:upper(), llIIlllI1lll), Color = I1Il1III11ll})
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
+        if IIIl1lI1Ill1.ESP.Dropped or IIIl1lI1Ill1.ESP.DeadBodies then
+            local l1IIlllll11l = l111l1IllIll:FindFirstChild("DroppedItems")
+            if l1IIlllll11l then
+                for _, v in pairs(l1IIlllll11l:GetChildren()) do
+                    local ll1lIIIlIlII = v:FindFirstChild("Humanoid") or v:FindFirstChild("Head") or v:FindFirstChild("UpperTorso") or v:FindFirstChild("Torso")
+                    local IlI1lllIl1lI = v:IsA("BasePart") and v or (v:IsA("Model") and (v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart", true)))
+                    if IlI1lllIl1lI and IlI1lllIl1lI:IsA("BasePart") then
+                        if ll1lIIIlIlII and IIIl1lI1Ill1.ESP.DeadBodies then
+                            table.insert(lIII11l1l111, {Obj = v, Hrp = IlI1lllIl1lI, Type = "Loot", Name = string.format("[BODY: %s]", v.Name:upper()), Color = Color3.fromRGB(200, 50, 50)})
+                        elseif not ll1lIIIlIlII and IIIl1lI1Ill1.ESP.Dropped then
+                            table.insert(lIII11l1l111, {Obj = v, Hrp = IlI1lllIl1lI, Type = "Loot", Name = string.format("[DROP: %s]", v.Name:upper()), Color = Color3.fromRGB(255, 255, 255)})
+                        end
+                    end
+                end
+            end
+        end
+        
+        if IIIl1lI1Ill1.ESP.Mines then
+            local lIl1II1lIIll = l111l1IllIll:FindFirstChild("NoCollision")
+            local l11llI1l1I1I = lIl1II1lIIll and lIl1II1lIIll:FindFirstChild("AiZones")
+            local I1Ill11Illll = l11llI1l1I1I and l11llI1l1I1I:FindFirstChild("BridgeClaymores")
+            if I1Ill11Illll then
+                for _, v in pairs(I1Ill11Illll:GetChildren()) do
+                    local l111111111lI = v:FindFirstChild("SpawnedItem")
+                    if l111111111lI and l111111111lI:IsA("ObjectValue") and l111111111lI.Value then
+                            local IlI1lllIl1lI = l111111111lI.Value:IsA("BasePart") and l111111111lI.Value or (l111111111lI.Value:IsA("Model") and (l111111111lI.Value.PrimaryPart or l111111111lI.Value:FindFirstChildWhichIsA("BasePart", true)))
+                        if IlI1lllIl1lI and IlI1lllIl1lI:IsA("BasePart") then table.insert(lIII11l1l111, {Obj = l111111111lI.Value, Hrp = IlI1lllIl1lI, Type = "Loot", Name = "[CLAYMORE]", Color = IIIl1lI1Ill1.Theme.Danger}) end
+                    end
+                end
+            end
+            local Il1IIlII1llI = l111l1IllIll:FindFirstChild("AiZones")
+            local lIlII1Ill1Il = Il1IIlII1llI and Il1IIlII1llI:FindFirstChild("OutpostLandmines")
+            if lIlII1Ill1Il then
+                for _, v in pairs(lIlII1Ill1Il:GetChildren()) do
+                        local IlI1lllIl1lI = v:IsA("BasePart") and v or (v:IsA("Model") and (v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart", true)))
+                    if IlI1lllIl1lI and IlI1lllIl1lI:IsA("BasePart") then table.insert(lIII11l1l111, {Obj = v, Hrp = IlI1lllIl1lI, Type = "Loot", Name = "[LANDMINE]", Color = IIIl1lI1Ill1.Theme.Danger}) end
+                end
+            end
+            local I1lI1llI1lII = Il1IIlII1llI and Il1IIlII1llI:FindFirstChild("ShipWreckClaymores")
+            if I1lI1llI1lII then
+                for _, v in pairs(I1lI1llI1lII:GetChildren()) do
+                    local l111111111lI = v:FindFirstChild("SpawnedItem")
+                    local l11Il1llIlIl = (l111111111lI and l111111111lI:IsA("ObjectValue") and l111111111lI.Value) or v
+                    local IlI1lllIl1lI = l11Il1llIlIl:IsA("BasePart") and l11Il1llIlIl or (l11Il1llIlIl:IsA("Model") and (l11Il1llIlIl.PrimaryPart or l11Il1llIlIl:FindFirstChildWhichIsA("BasePart", true)))
+                    if IlI1lllIl1lI and IlI1lllIl1lI:IsA("BasePart") then table.insert(lIII11l1l111, {Obj = l11Il1llIlIl, Hrp = IlI1lllIl1lI, Type = "Loot", Name = "[CLAYMORE]", Color = IIIl1lI1Ill1.Theme.Danger}) end
+                end
+            end
+        end
+
+        I1l11Il1l1II = lIII11l1l111
+        task.wait(1)
+    end
+end)
+
+local III1IlI11l1I = {}
+
+local l1ll1IIl11lI = RaycastParams.new()
+l1ll1IIl11lI.FilterType = Enum.RaycastFilterType.Exclude
+
+-- Core ESP Render Loop (Runs every frame)
+RegisterConnection(IlIl1ll11I1l.RenderStepped:Connect(function()
+    local l1l1I11III1I = {}
+    local IIlI1I11I11l = Vector2.new(IlIlII11I11l.ViewportSize.X / 2, IlIlII11I11l.ViewportSize.Y)
+    local I1lI1I1l11Il = I1IlIlIlIII1.Character and I1IlIlIlIII1.Character:FindFirstChild("HumanoidRootPart") and I1IlIlIlIII1.Character.HumanoidRootPart.Position
+    
+    for _, t in ipairs(I1l11Il1l1II) do
+        if not t.Obj or not t.Obj.Parent then continue end
+        
+        local llIIllI1l111 = I1lI1I1l11Il and (I1lI1I1l11Il - t.Hrp.Position).Magnitude or 0
+        local I1Il1IlllllI = (t.Type == "Loot") and IIIl1lI1Ill1.ESP.LootDistance or IIIl1lI1Ill1.ESP.MaxDistance
+        if llIIllI1l111 > I1Il1IlllllI then continue end        
+        l1l1I11III1I[t.Obj] = true
+        if not III1IlI11l1I[t.Obj] then III1IlI11l1I[t.Obj] = CreateESPDrawings() end
+        local l1I1II1IIIlI = III1IlI11l1I[t.Obj]
+        
+        local l11lIII11I1l, lll1l11II1ll = IlIlII11I11l:WorldToViewportPoint(t.Hrp.Position)
+        
+        if l11lIII11I1l.Z <= 0 then
+            ClearDrawings(l1I1II1IIIlI)
+            continue
+        end
+        
+        -- Entity specifics
+        local II1ll111l11I = t.Obj:FindFirstChild("Head")
+        local llIII11I11Il = II1ll111l11I and II1ll111l11I.Position + Vector3.new(0, 0.5, 0) or t.Hrp.Position + Vector3.new(0, 3, 0)
+        local l1IIII1lIIlI = t.Hrp.Position - Vector3.new(0, 3, 0)
+
+        if t.Type == "Loot" then
+            llIII11I11Il = t.Hrp.Position + Vector3.new(0, 1.5, 0)
+            l1IIII1lIIlI = t.Hrp.Position - Vector3.new(0, 1.5, 0)
+        end
+        
+        local Il11111lII1I, ll1lIlIlIll1 = IlIlII11I11l:WorldToViewportPoint(llIII11I11Il)
+        local IllIlI11l1ll, llI1l1IlI1lI = IlIlII11I11l:WorldToViewportPoint(l1IIII1lIIlI)
+        
+        local ll11lllIlI1l = IIIl1lI1Ill1.ESP[t.Type]
+        if t.Type == "Loot" then
+            ll11lllIlI1l = { Box = true, Name = true, Distance = true, HealthBar = false, Line = false, Skeleton = false, HeadDot = false, Exposed = false }
+        end
+        
+        -- Optimization: Only check Z depth so ESP doesn't flicker when partially off the edge of the screen
+        if Il11111lII1I.Z > 0 and IllIlI11l1ll.Z > 0 then
+            local l1IlI1Il1Ill = math.abs(IllIlI11l1ll.Y - Il11111lII1I.Y)
+            local I1ll1111I1lI = l1IlI1Il1Ill * 0.6
+            
+            -- Box
+            if ll11lllIlI1l and ll11lllIlI1l.Box then
+                l1I1II1IIIlI.Box.Size = Vector2.new(I1ll1111I1lI, l1IlI1Il1Ill)
+                l1I1II1IIIlI.Box.Position = Vector2.new(Il11111lII1I.X - I1ll1111I1lI/2, Il11111lII1I.Y)
+                l1I1II1IIIlI.Box.Color = t.Color
+                l1I1II1IIIlI.Box.Visible = true
+            else l1I1II1IIIlI.Box.Visible = false end
+            
+            -- Health Bar
+            if ll11lllIlI1l and ll11lllIlI1l.HealthBar and t.Hum then
+                local l1IIl11llI11 = math.clamp(t.Hum.Health / t.Hum.MaxHealth, 0, 1)
+                local l1II11l111I1 = l1IlI1Il1Ill * l1IIl11llI11
+                
+                l1I1II1IIIlI.HealthBg.From = Vector2.new(Il11111lII1I.X - I1ll1111I1lI/2 - 8, Il11111lII1I.Y)
+                l1I1II1IIIlI.HealthBg.To = Vector2.new(Il11111lII1I.X - I1ll1111I1lI/2 - 8, IllIlI11l1ll.Y)
+                l1I1II1IIIlI.HealthBg.Visible = true
+                
+                l1I1II1IIIlI.HealthFill.From = Vector2.new(Il11111lII1I.X - I1ll1111I1lI/2 - 8, IllIlI11l1ll.Y)
+                l1I1II1IIIlI.HealthFill.To = Vector2.new(Il11111lII1I.X - I1ll1111I1lI/2 - 8, IllIlI11l1ll.Y - l1II11l111I1)
+                l1I1II1IIIlI.HealthFill.Color = Color3.fromHSV(l1IIl11llI11 * 0.3, 1, 1)
+                l1I1II1IIIlI.HealthFill.Visible = true
+            else l1I1II1IIIlI.HealthBg.Visible = false l1I1II1IIIlI.HealthFill.Visible = false end
+            
+            -- Text (Name / Distance)
+            if ll11lllIlI1l and ll11lllIlI1l.Name then
+                l1I1II1IIIlI.Name.Text = (t.Type == "Loot" and t.Name) or string.format("[%s]", t.Name)
+                l1I1II1IIIlI.Name.Position = Vector2.new(Il11111lII1I.X, Il11111lII1I.Y - 18)
+                l1I1II1IIIlI.Name.Color = t.Color
+                l1I1II1IIIlI.Name.Visible = true
+            else l1I1II1IIIlI.Name.Visible = false end
+            
+            if ll11lllIlI1l and ll11lllIlI1l.Distance then
+                l1I1II1IIIlI.Distance.Text = string.format("%dm", math.floor(llIIllI1l111))
+                l1I1II1IIIlI.Distance.Position = Vector2.new(IllIlI11l1ll.X, IllIlI11l1ll.Y + 2)
+                l1I1II1IIIlI.Distance.Visible = true
+            else l1I1II1IIIlI.Distance.Visible = false end
+            
+            -- Tracer Line
+            if ll11lllIlI1l and ll11lllIlI1l.Line then
+                l1I1II1IIIlI.Tracer.From = IIlI1I11I11l
+                l1I1II1IIIlI.Tracer.To = Vector2.new(IllIlI11l1ll.X, IllIlI11l1ll.Y)
+                l1I1II1IIIlI.Tracer.Color = t.Color
+                l1I1II1IIIlI.Tracer.Visible = true
+            else l1I1II1IIIlI.Tracer.Visible = false end
+            
+            -- Head Dot
+            if ll11lllIlI1l and ll11lllIlI1l.HeadDot and II1ll111l11I then
+                local Il1lI1ll11l1, I11I1lI1llI1 = IlIlII11I11l:WorldToViewportPoint(II1ll111l11I.Position)
+                if I11I1lI1llI1 then
+                    l1I1II1IIIlI.HeadDot.Position = Vector2.new(Il1lI1ll11l1.X, Il1lI1ll11l1.Y)
+                    l1I1II1IIIlI.HeadDot.Radius = math.clamp(100 / llIIllI1l111, 2, 10)
+                    l1I1II1IIIlI.HeadDot.Color = IIIl1lI1Ill1.Theme.Accent
+                    l1I1II1IIIlI.HeadDot.Visible = true
+                else l1I1II1IIIlI.HeadDot.Visible = false end
+            else l1I1II1IIIlI.HeadDot.Visible = false end
+           
+            -- Exposed Status Check
+            if ll11lllIlI1l and ll11lllIlI1l.Exposed and (t.Type == "Player" or t.Type == "NPC") then
+                local lI1l11lI11II = II1ll111l11I and II1ll111l11I.Position or t.Hrp.Position
+                l1ll1IIl11lI.FilterDescendantsInstances = {I1IlIlIlIII1.Character, t.Obj}
+                local l1IlIIllIIII = l111l1IllIll:Raycast(IlIlII11I11l.CFrame.Position, lI1l11lI11II - IlIlII11I11l.CFrame.Position, l1ll1IIl11lI)
+                local Il1I11lI1l1I = not l1IlIIllIIII or l1IlIIllIIII.Instance.Transparency > 0.8 or not l1IlIIllIIII.Instance.CanCollide
+                
+                if Il1I11lI1l1I then
+                    l1I1II1IIIlI.ExposedText.Text = "[EXPOSED]"
+                    l1I1II1IIIlI.ExposedText.Position = Vector2.new(Il11111lII1I.X, Il11111lII1I.Y - (ll11lllIlI1l.Name and 32 or 18))
+                    l1I1II1IIIlI.ExposedText.Visible = true
+                else l1I1II1IIIlI.ExposedText.Visible = false end
+            else
+                if l1I1II1IIIlI.ExposedText then l1I1II1IIIlI.ExposedText.Visible = false end
+            end
+
+            -- 3D Skeleton
+            if ll11lllIlI1l and ll11lllIlI1l.Skeleton and (t.Type == "Player" or t.Type == "NPC") then
+                local II1I1l1ll1lI = t.Obj:FindFirstChild("UpperTorso") ~= nil
+                local II1Il1lIII1l = II1I1l1ll1lI and {
+                    {"Head", "UpperTorso"}, {"UpperTorso", "LowerTorso"},
+                    {"LowerTorso", "LeftUpperLeg"}, {"LeftUpperLeg", "LeftLowerLeg"}, {"LeftLowerLeg", "LeftFoot"},
+                    {"LowerTorso", "RightUpperLeg"}, {"RightUpperLeg", "RightLowerLeg"}, {"RightLowerLeg", "RightFoot"},
+                    {"UpperTorso", "LeftUpperArm"}, {"LeftUpperArm", "LeftLowerArm"}, {"LeftLowerArm", "LeftHand"},
+                    {"UpperTorso", "RightUpperArm"}, {"RightUpperArm", "RightLowerArm"}, {"RightLowerArm", "RightHand"}
+                } or {
+                    {"Head", "Torso"}, {"Torso", "Left Arm"}, {"Torso", "Right Arm"},
+                    {"Torso", "Left Leg"}, {"Torso", "Right Leg"}
+                }
+                
+                for i, p in ipairs(II1Il1lIII1l) do
+                    local ll11I11lIll1 = t.Obj:FindFirstChild(p[1]) or t.Obj:FindFirstChild(p[1]:gsub("Upper", ""):gsub("Lower", ""))
+                    local l11IlI1lI1lI = t.Obj:FindFirstChild(p[2]) or t.Obj:FindFirstChild(p[2]:gsub("Upper", ""):gsub("Lower", ""))
+                    local Il1lIII1lIIl = l1I1II1IIIlI.SkeletonLines[i]
+                    if ll11I11lIll1 and l11IlI1lI1lI and Il1lIII1lIIl then
+                        local lIl111II11lI, I11lIlIlI1II = IlIlII11I11l:WorldToViewportPoint(ll11I11lIll1.Position)
+                        local ll1I1I11lIIl, IIlI1llll1ll = IlIlII11I11l:WorldToViewportPoint(l11IlI1lI1lI.Position)
+                        if I11lIlIlI1II and IIlI1llll1ll then
+                            Il1lIII1lIIl.From = Vector2.new(lIl111II11lI.X, lIl111II11lI.Y)
+                            Il1lIII1lIIl.To = Vector2.new(ll1I1I11lIIl.X, ll1I1I11lIIl.Y)
+                            Il1lIII1lIIl.Color = t.Color
+                            Il1lIII1lIIl.Visible = true
+                        else Il1lIII1lIIl.Visible = false end
+                    elseif Il1lIII1lIIl then Il1lIII1lIIl.Visible = false end
+                end
+                for i = #II1Il1lIII1l + 1, #l1I1II1IIIlI.SkeletonLines do l1I1II1IIIlI.SkeletonLines[i].Visible = false end
+            else
+                for _, Il1lIII1lIIl in ipairs(l1I1II1IIIlI.SkeletonLines) do Il1lIII1lIIl.Visible = false end
+            end
+            
+        else
+            ClearDrawings(l1I1II1IIIlI)
+        end
+    end
+    
+    -- Stop memory leak by fully destroying inactive drawings
+    local I11IIIlI11ll = {}
+    for l11Il1llIlIl, l1I1II1IIIlI in pairs(III1IlI11l1I) do
+        if not l1l1I11III1I[l11Il1llIlIl] then
+            RemoveDrawings(l1I1II1IIIlI)
+            table.insert(I11IIIlI11ll, l11Il1llIlIl)
+        end
+    end
+    for _, l11Il1llIlIl in ipairs(I11IIIlI11ll) do
+        III1IlI11l1I[l11Il1llIlIl] = nil
+    end
+end))
+
+-- // Combat Logic System
+
+local Il1IIIl1I1I1 = RaycastParams.new()
+Il1IIIl1I1I1.FilterType = Enum.RaycastFilterType.Exclude
+
+local function GetVisiblePoint(targetPart)
+    local l11I1III1I1I = IlIlII11I11l.CFrame.Position
+    local IIl1IlI111Il = targetPart.Position
+    local lIlIll1IllIl = targetPart.Size
+    local I1l1I1I1I1lI = targetPart.CFrame
+    
+    -- Create check offsets: Center, Right half, Left half, Top half, Bottom half
+    local lI1ll1ll1l1I = {
+        IIl1IlI111Il,
+        (I1l1I1I1I1lI * CFrame.new(lIlIll1IllIl.X/2.5, 0, 0)).Position,
+        (I1l1I1I1I1lI * CFrame.new(-lIlIll1IllIl.X/2.5, 0, 0)).Position,
+        (I1l1I1I1I1lI * CFrame.new(0, lIlIll1IllIl.Y/2.5, 0)).Position,
+        (I1l1I1I1I1lI * CFrame.new(0, -lIlIll1IllIl.Y/2.5, 0)).Position,
+    }
+    Il1IIIl1I1I1.FilterDescendantsInstances = {I1IlIlIlIII1.Character, targetPart.Parent}
+    for _, pt in ipairs(lI1ll1ll1l1I) do
+        local l1IlIIllIIII = l111l1IllIll:Raycast(l11I1III1I1I, pt - l11I1III1I1I, Il1IIIl1I1I1)
+        if not l1IlIIllIIII or l1IlIIllIIII.Instance.Transparency > 0.8 or not l1IlIIllIIII.Instance.CanCollide then return pt end
+    end
+    return IIl1IlI111Il -- Fallback to center if heavily obscured
+end
+
+local function GetClosestTarget()
+    local Il111lIIl111, IIl1Il1II111 = nil, math.huge
+    local I1II1IIl1l11 = lIl1I1lIII1I:GetMouseLocation()
+    
+    local llIlllI11II1 = {}
+    for _, p in pairs(lIll1IIlIIlI:GetPlayers()) do if p ~= I1IlIlIlIII1 and p.Character then table.insert(llIlllI11II1, p.Character) end end
+
+        local l1I1IllI1lI1 = { {Node = l111l1IllIll, Desc = false} }
+        if l111l1IllIll:FindFirstChild("AiZones") then table.insert(l1I1IllI1lI1, {Node = l111l1IllIll.AiZones, Desc = true}) end
+        
+        for _, fData in ipairs(l1I1IllI1lI1) do
+            local Il1ll1l11l1I = fData.Desc and fData.Node:GetDescendants() or fData.Node:GetChildren()
+            for _, l11Il1llIlIl in pairs(Il1ll1l11l1I) do
+                if l11Il1llIlIl:IsA("Model") and l11Il1llIlIl ~= I1IlIlIlIII1.Character and (l11Il1llIlIl:FindFirstChild("Humanoid") or l11Il1llIlIl.Name == "MI24V") and not lIll1IIlIIlI:GetPlayerFromCharacter(l11Il1llIlIl) then
+                    table.insert(llIlllI11II1, l11Il1llIlIl)
+                end
+        end
+    end
+
+    for _, char in ipairs(llIlllI11II1) do
+            local II11l1Illl11 = (char.Name == "MI24V")
+            local l1IIl11111ll = char:FindFirstChild("Humanoid")
+            local IlI1lllIl1lI = char:FindFirstChild(IIIl1lI1Ill1.Combat.AimPart) or char:FindFirstChild("Head") or char:FindFirstChild("Torso") or (II11l1Illl11 and (char.PrimaryPart or char:FindFirstChildWhichIsA("BasePart", true)))
+            if (II11l1Illl11 or (l1IIl11111ll and l1IIl11111ll.Health > 0)) and IlI1lllIl1lI then
+            local l11lIII11I1l, lll1l11II1ll = IlIlII11I11l:WorldToViewportPoint(IlI1lllIl1lI.Position)
+            if lll1l11II1ll then
+                local llIIllI1l111 = (I1II1IIl1l11 - Vector2.new(l11lIII11I1l.X, l11lIII11I1l.Y)).Magnitude
+                if llIIllI1l111 < IIl1Il1II111 then
+                    IIl1Il1II111 = llIIllI1l111
+                    Il111lIIl111 = IlI1lllIl1lI
+                end
+            end
+        end
+    end
+    return Il111lIIl111
+end
+
+local II111ll11II1 = nil
+
+RegisterConnection(IlIl1ll11I1l.RenderStepped:Connect(function()
+
+    local II1lI11l1I1l = false
+    if IIIl1lI1Ill1.Combat.Aimbot then
+        local lIIII1llll1l = IIIl1lI1Ill1.Combat.AimKey
+        if type(lIIII1llll1l) == "userdata" then
+            if tostring(lIIII1llll1l):find("MouseButton") then II1lI11l1I1l = lIl1I1lIII1I:IsMouseButtonPressed(lIIII1llll1l)
+            else II1lI11l1I1l = lIl1I1lIII1I:IsKeyDown(lIIII1llll1l) end
+        end
+    end
+        
+    -- Main Aimbot Lock
+    if II1lI11l1I1l then
+        if not II111ll11II1 then
+            II111ll11II1 = GetClosestTarget()
+        end
+        
+        if II111ll11II1 then
+            local ll1lI1111l1I = II111ll11II1.Parent
+            if not ll1lI1111l1I or not ll1lI1111l1I:FindFirstChild("Humanoid") or ll1lI1111l1I.Humanoid.Health <= 0 then
+                II111ll11II1 = nil
+            else
+                local Ill1IlIII1II = II111ll11II1.Position
+                -- If aiming at Head, adjust position to the front of the face
+                if II111ll11II1.Name == "Head" then
+                    Ill1IlIII1II = Ill1IlIII1II + (II111ll11II1.CFrame.LookVector * (II111ll11II1.Size.Z / 2))
+                end
+                IlIlII11I11l.CFrame = CFrame.new(IlIlII11I11l.CFrame.Position, Ill1IlIII1II)
+            end
+        end
+    else
+        II111ll11II1 = nil
+    end
+end))
+
+-- Weapon Mods (No Recoil)
+task.spawn(function()
+    while llII1II1lll1.Parent do
+        task.wait(2)
+        
+        -- Project Delta Specific No-Recoil (ReplicatedStorage RecoilPatterns)
+        if IIIl1lI1Ill1.Combat.NoRecoil then
+            pcall(function()
+                local lIIlIl1l111I = game:GetService("ReplicatedStorage"):FindFirstChild("RangedWeapons")
+                if lIIlIl1l111I then
+                    for _, weapon in pairs(lIIlIl1l111I:GetChildren()) do
+                        local I1lIlI111llI = weapon:FindFirstChild("RecoilPattern")
+                        if I1lIlI111llI then
+                            for _, valueObj in pairs(I1lIlI111llI:GetDescendants()) do
+                                if valueObj:IsA("NumberValue") or valueObj:IsA("IntValue") then valueObj.Value = 0 end
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+
+        if (IIIl1lI1Ill1.Combat.NoRecoil or IIIl1lI1Ill1.Combat.InstaHit) and getgc then
+            pcall(function()
+                for _, v in pairs(getgc(true)) do
+                    if type(v) == "table" then
+                        if IIIl1lI1Ill1.Combat.NoRecoil then
+                            for _, k in ipairs({"Recoil", "CameraRecoil", "Kick", "KickUp", "KickDown", "KickLeft", "KickRight", "VRecoil", "HRecoil", "RecoilMin", "RecoilMax", "CamKickMin", "CamKickMax"}) do
+                                local I11ll1IIl11l = rawget(v, k)
+                                if type(I11ll1IIl11l) == "number" then rawset(v, k, 0)
+                                elseif type(I11ll1IIl11l) == "table" and #I11ll1IIl11l > 0 then rawset(v, k, {0,0,0})
+                                elseif typeof(I11ll1IIl11l) == "Vector3" then rawset(v, k, Vector3.new(0,0,0))
+                                elseif typeof(I11ll1IIl11l) == "CFrame" then rawset(v, k, CFrame.new()) end
+                            end
+                        end
+                        if IIIl1lI1Ill1.Combat.InstaHit then
+                            -- Safely modify highly specific bullet keys
+                            for _, k in ipairs({"BulletSpeed", "MuzzleVelocity", "ProjectileSpeed", "InitialVelocity"}) do
+                                if type(rawget(v, k)) == "number" then rawset(v, k, 99999) end
+                            end
+                            for _, k in ipairs({"BulletDrop", "ProjectileDrop", "BulletGravity"}) do
+                                if type(rawget(v, k)) == "number" then rawset(v, k, 0) end
+                            end
+                            
+                            -- Only touch generic names ("Speed", "Gravity") if we verify this is a weapon/bullet table
+                            local I1I1I1IllI11 = rawget(v, "Damage") or rawget(v, "BaseDamage") or rawget(v, "Penetration") or rawget(v, "Hitbox")
+                            if I1I1I1IllI11 then
+                                if type(rawget(v, "Speed")) == "number" then rawset(v, "Speed", 99999) end
+                                if type(rawget(v, "Velocity")) == "number" then rawset(v, "Velocity", 99999) end
+                                if type(rawget(v, "Gravity")) == "number" then rawset(v, "Gravity", 0) end
+                                if type(rawget(v, "Drop")) == "number" then rawset(v, "Drop", 0) end
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Zoom Logic
+local lll11IIl1I1l = false
+RegisterConnection(IlIl1ll11I1l.RenderStepped:Connect(function()
+    if IIIl1lI1Ill1.Character.ZoomEnabled then
+        IlIlII11I11l.FieldOfView = IIIl1lI1Ill1.Character.ZoomFOV
+        lll11IIl1I1l = true
+    else
+        if lll11IIl1I1l then
+            IlIlII11I11l.FieldOfView = IIIl1lI1Ill1.Character.FOV
+            lll11IIl1I1l = false
+        elseif IIIl1lI1Ill1.Character.FOV ~= 70 then
+            -- Smart FOV: Stop forcing the FOV when the player aims down sights (RMB)
+            -- or when the game tries to heavily zoom the camera in for a scope.
+            local lIlllIIlI1l1 = lIl1I1lIII1I:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+            if not lIlllIIlI1l1 and IlIlII11I11l.FieldOfView > 55 then
+                IlIlII11I11l.FieldOfView = IIIl1lI1Ill1.Character.FOV
+            end
+        end
+    end
+end))
+
+RegisterConnection(lIl1I1lIII1I.InputBegan:Connect(function(input, l1l1I11III1I)
+    if l1l1I11III1I then return end
+    local l1I11lI1llII = false
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == IIIl1lI1Ill1.Character.ZoomKey then l1I11lI1llII = true end
+    elseif input.UserInputType.Name:find("MouseButton") then
+        if input.UserInputType == IIIl1lI1Ill1.Character.ZoomKey then l1I11lI1llII = true end
+    end
+    
+    if l1I11lI1llII then
+        IIIl1lI1Ill1.Character.ZoomEnabled = not IIIl1lI1Ill1.Character.ZoomEnabled
+    end
+end))
+
+-- // TABS CREATION // --
+
+-- 1. COMBAT TAB
+local IlI1111l11I1, Il11I1IIll1I = CreateTab("Combat")
+CreateSection(IlI1111l11I1, "AIM ASSIST")
+CreateToggle(IlI1111l11I1, "Enable Aimbot", false, function(v) IIIl1lI1Ill1.Combat.Aimbot = v end)
+CreateCycle(IlI1111l11I1, "Aim Part", {"Head", "Torso"}, 1, function(v) IIIl1lI1Ill1.Combat.AimPart = v end)
+CreateKeybind(IlI1111l11I1, "Aim Key", Enum.UserInputType.MouseButton2, function(v) IIIl1lI1Ill1.Combat.AimKey = v end)
+
+CreateSection(Il11I1IIll1I, "WEAPON MODS")
+CreateToggle(Il11I1IIll1I, "No Recoil", false, function(v) IIIl1lI1Ill1.Combat.NoRecoil = v end)
+CreateToggle(Il11I1IIll1I, "Instant Hit", false, function(v) IIIl1lI1Ill1.Combat.InstaHit = v end)
+
+-- 2. CHARACTER TAB
+local I1IlI11l1II1, l1II1llII11I = CreateTab("Character")
+CreateSection(I1IlI11l1II1, "ZOOM")
+CreateKeybind(I1IlI11l1II1, "Zoom Key", Enum.KeyCode.Z, function(v) IIIl1lI1Ill1.Character.ZoomKey = v end)
+CreateSlider(I1IlI11l1II1, "Zoom FOV", 1, 120, 20, function(v) IIIl1lI1Ill1.Character.ZoomFOV = v end)
+
+CreateSection(l1II1llII11I, "VISUALS")
+CreateToggle(l1II1llII11I, "Fullbright", false, function(v)
+    if v then
+        game.Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        game.Lighting.Brightness = 2
+    else
+        game.Lighting.Ambient = Color3.fromRGB(0, 0, 0)
+        game.Lighting.Brightness = 1
+    end
+end)
+CreateSlider(l1II1llII11I, "Field of View", 70, 120, 70, function(v)
+    IIIl1lI1Ill1.Character.FOV = v
+end)
+
+-- 3. ESP TAB (The major overhaul)
+local IIlIllIlIIll, I1I1Ill1llll = CreateTab("ESP")
+CreateSection(IIlIllIlIIll, "MASTER CONTROLS")
+CreateSlider(IIlIllIlIIll, "Max Distance", 100, 5000, 500, function(v) IIIl1lI1Ill1.ESP.MaxDistance = v end)
+
+CreateSection(IIlIllIlIIll, "PLAYER ESP")
+CreateToggle(IIlIllIlIIll, "Show Box", false, function(v) IIIl1lI1Ill1.ESP.Player.Box = v end)
+CreateToggle(IIlIllIlIIll, "Show Name", false, function(v) IIIl1lI1Ill1.ESP.Player.Name = v end)
+CreateToggle(IIlIllIlIIll, "Show Distance", false, function(v) IIIl1lI1Ill1.ESP.Player.Distance = v end)
+CreateToggle(IIlIllIlIIll, "Show Health Bar", false, function(v) IIIl1lI1Ill1.ESP.Player.HealthBar = v end)
+CreateToggle(IIlIllIlIIll, "Show Tracer Lines", false, function(v) IIIl1lI1Ill1.ESP.Player.Line = v end)
+CreateToggle(IIlIllIlIIll, "Show 3D Skeleton Rig", false, function(v) IIIl1lI1Ill1.ESP.Player.Skeleton = v end)
+CreateToggle(IIlIllIlIIll, "Show Head Dot", false, function(v) IIIl1lI1Ill1.ESP.Player.HeadDot = v end)
+CreateToggle(IIlIllIlIIll, "Show Exposed Status", false, function(v) IIIl1lI1Ill1.ESP.Player.Exposed = v end)
+
+CreateSection(I1I1Ill1llll, "NPC ESP")
+CreateToggle(I1I1Ill1llll, "Show Box", false, function(v) IIIl1lI1Ill1.ESP.NPC.Box = v end)
+CreateToggle(I1I1Ill1llll, "Show Name", false, function(v) IIIl1lI1Ill1.ESP.NPC.Name = v end)
+CreateToggle(I1I1Ill1llll, "Show Distance", false, function(v) IIIl1lI1Ill1.ESP.NPC.Distance = v end)
+CreateToggle(I1I1Ill1llll, "Show Health Bar", false, function(v) IIIl1lI1Ill1.ESP.NPC.HealthBar = v end)
+CreateToggle(I1I1Ill1llll, "Show Tracer Lines", false, function(v) IIIl1lI1Ill1.ESP.NPC.Line = v end)
+CreateToggle(I1I1Ill1llll, "Show 3D Skeleton Rig", false, function(v) IIIl1lI1Ill1.ESP.NPC.Skeleton = v end)
+CreateToggle(I1I1Ill1llll, "Show Head Dot", false, function(v) IIIl1lI1Ill1.ESP.NPC.HeadDot = v end)
+CreateToggle(I1I1Ill1llll, "Show Exposed Status", false, function(v) IIIl1lI1Ill1.ESP.NPC.Exposed = v end)
+
+CreateSection(I1I1Ill1llll, "EXTRACTION ESP")
+CreateToggle(I1I1Ill1llll, "Show Box", false, function(v) IIIl1lI1Ill1.ESP.Exit.Box = v end)
+CreateToggle(I1I1Ill1llll, "Show Name", false, function(v) IIIl1lI1Ill1.ESP.Exit.Name = v end)
+CreateToggle(I1I1Ill1llll, "Show Distance", false, function(v) IIIl1lI1Ill1.ESP.Exit.Distance = v end)
+
+-- 4. LOOT TAB
+local Il1lllI1Ill1, lII1l1lIIIl1 = CreateTab("Loot")
+
+CreateSection(Il1lllI1Ill1, "MASTER CONTROLS")
+CreateSlider(Il1lllI1Ill1, "Max Distance", 10, 5000, 500, function(v) IIIl1lI1Ill1.ESP.LootDistance = v end)
+
+CreateSection(Il1lllI1Ill1, "MILITARY")
+for _, llIlI1l11Il1 in ipairs({"GrenadeCrate", "LargeMilitaryBox", "MilitaryCrate", "SmallMilitaryBox"}) do
+    CreateToggle(Il1lllI1Ill1, llIlI1l11Il1, false, function(v) IIIl1lI1Ill1.ESP.Loot[llIlI1l11Il1] = v end)
+end
+
+CreateSection(Il1lllI1Ill1, "SUPPLY DROPS")
+for _, llIlI1l11Il1 in ipairs({"SupplyDropEDF", "SupplyDropEDF_Default", "SupplyDropEDF_XMAS", "SupplyDropMilitary", "SupplyDropMilitary_Default", "SupplyDropMilitary_XMAS"}) do
+    CreateToggle(Il1lllI1Ill1, llIlI1l11Il1, false, function(v) IIIl1lI1Ill1.ESP.Loot[llIlI1l11Il1] = v end)
+end
+
+CreateSection(Il1lllI1Ill1, "SHIPPING")
+for _, llIlI1l11Il1 in ipairs({"LargeABPOPABox", "LargeShippingCrate", "SmallShippingCrate"}) do
+    CreateToggle(Il1lllI1Ill1, llIlI1l11Il1, false, function(v) IIIl1lI1Ill1.ESP.Loot[llIlI1l11Il1] = v end)
+end
+
+CreateSection(lII1l1lIIIl1, "BAGS")
+for _, llIlI1l11Il1 in ipairs({"KGBBag", "MedBag", "SatchelBag", "SportBag"}) do
+    CreateToggle(lII1l1lIIIl1, llIlI1l11Il1, false, function(v) IIIl1lI1Ill1.ESP.Loot[llIlI1l11Il1] = v end)
+end
+
+CreateSection(lII1l1lIIIl1, "WORLD")
+for _, llIlI1l11Il1 in ipairs({"CashRegister", "FilingCabinet", "Fridge", "HiddenCache", "ModificationStation", "PC", "Safe", "SerumContainer", "Toolbox"}) do
+    CreateToggle(lII1l1lIIIl1, llIlI1l11Il1, false, function(v) IIIl1lI1Ill1.ESP.Loot[llIlI1l11Il1] = v end)
+end
+
+CreateSection(lII1l1lIIIl1, "OTHER LOOT")
+CreateToggle(lII1l1lIIIl1, "Dropped Items", false, function(v) IIIl1lI1Ill1.ESP.Dropped = v end)
+CreateToggle(lII1l1lIIIl1, "Dead Bodies", false, function(v) IIIl1lI1Ill1.ESP.DeadBodies = v end)
+CreateToggle(lII1l1lIIIl1, "Claymores / Mines", false, function(v) IIIl1lI1Ill1.ESP.Mines = v end)
+
+-- System Toggle Bind (RightControl)
+RegisterConnection(lIl1I1lIII1I.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.RightControl then
+        lI1II111lIIl.Visible = not lI1II111lIIl.Visible
+    end
+end))
+
+Notify("System Online", "Welcome to Project Delta Premium.", 3)
